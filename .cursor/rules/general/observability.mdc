@@ -1,0 +1,232 @@
+---
+alwaysApply: true
+---
+
+# Fury Observability Guidelines
+
+This document establishes the foundational observability practices for all applications running on Fury PaaS. These guidelines cover the Fury observability stack: metrics, traces, and logs.
+
+---
+
+## 1. Fury Observability Stack
+
+### 1.1 Primary Metrics: Datadog + DogStatsD
+**Architecture**: DogStatsD → Datadog Agents → Datadog Proxy → Datadog Backend
+- **Submission type**: DogStatsD protocol with Datadog extensions
+- **Metric types**: Counter, Gauge, Histogram, Timing
+- **Tag format**: `key:value` pairs for dimensional data
+- **Backup service**: AWS Prometheus for high criticality metrics
+
+### 1.2 Distributed Tracing: OpenTelemetry
+**Architecture**: OTel Agents → Events Service → Backend (New Relic/Datadog)
+- **Sampling**: 2% of all requests, 100% of errors, 50% of successful requests
+- **Instrumentation**: Automatic via Melitk toolkits, manual for custom spans
+- **Context propagation**: W3C trace context standard
+- **Span attributes**: Business context without PII
+
+### 1.3 Application Performance: New Relic APM (Legacy)
+**Usage**: Existing applications with established New Relic integration
+- **Automatic instrumentation**: Via language-specific agents
+- **Gradual migration**: Moving towards OpenTelemetry for new applications
+- **Monitoring**: Apdex, error rates, response times
+- **Alerting**: Integrated with Fury alert management
+
+### 1.4 Logs: Fury Logs Service
+**Architecture**: Application → ElasticSearch → Kibana Dashboard
+- **Output**: Standard output (stdout/stderr) only
+- **Format**: Structured JSON with correlation IDs
+- **Sampling**: Applied when daily volume limits exceeded
+- **Retention**: Based on application tier and compliance requirements
+
+---
+
+## 2. Melitk Toolkits Integration
+
+### 2.1 Instrumented Clients
+Use official Melitk toolkits for automatic observability:
+- **REST clients**: Auto-instrumented HTTP requests with spans and metrics
+- **KVS clients**: Automatic key-value store operation tracking
+- **BigQueue clients**: Message queue operations with tracing
+- **Object Storage clients**: Storage operations with performance metrics
+- **Audit clients**: Compliance logging with trace correlation
+
+### 2.2 Service Discovery
+All instrumented services automatically report:
+- **Service topology**: Dependency mapping and service relationships
+- **Health metrics**: Availability and performance indicators
+- **Error patterns**: Failure modes and error propagation
+- **Performance baselines**: Response time and throughput patterns
+
+---
+
+## 3. Fury Configuration Standards
+
+### 3.1 Environment Variables
+Standard Fury environment variables for observability:
+- `OTEL_SERVICE_NAME`: Service identifier for tracing
+- `OTEL_TRACES_EXPORTER`: Export destination (otlp)
+- `OTEL_EXPORTER_OTLP_ENDPOINT`: OTel agent endpoint
+- `DATADOG_AGENT_HOST`: Datadog agent hostname
+- `NEW_RELIC_APP_NAME`: New Relic application name
+
+### 3.2 Dockerfile Patterns
+Use Fury-provided base images with pre-configured observability:
+- **Distroless images**: Include necessary agents and instrumentation
+- **Environment setup**: Automatic configuration based on Fury context
+- **Agent sidecars**: OTel agents enabled per scope configuration
+- **Resource limits**: Appropriate memory and CPU allocation
+
+### 3.3 Scope Configuration
+Enable observability features per scope:
+- **OTel Agent**: Enable/disable OpenTelemetry data collection
+- **Criticality levels**: Determine retention and sampling policies
+- **Segmentation**: Configure per-segment observability settings
+- **Health checks**: Integrated with Fury health check system
+
+---
+
+## 4. Correlation and Context
+
+### 4.1 Request Correlation
+**Trace Context**: Follow W3C trace context specification
+- **Request IDs**: Unique identifiers propagated across services
+- **User context**: Include caller ID from mlauth when available
+- **Service boundaries**: Maintain context across Fury service calls
+- **Async operations**: Preserve context in background processing
+
+### 4.2 Business Context
+**Dimensional Data**: Include relevant business context
+- **Geographic**: Site ID, region, country codes
+- **User segments**: User types, membership levels
+- **Feature flags**: Experiment groups, feature toggles
+- **Criticality**: Core metrics impact, business criticality
+
+---
+
+## 5. Performance and Sampling
+
+### 5.1 Sampling Policies
+**Fury Sampling Strategy**:
+- **Trace sampling**: 2% of all requests collected
+- **Error sampling**: 100% of requests with status codes >= 400
+- **Success sampling**: 50% of sampled successful requests
+- **Metric aggregation**: 10-second windows for high-frequency metrics
+
+### 5.2 Performance Optimization
+**Non-blocking Operations**:
+- **Async telemetry**: Use background processing for metrics/traces
+- **Batch operations**: Aggregate telemetry data before transmission
+- **Circuit breakers**: Prevent observability from impacting performance
+- **Resource limits**: Set appropriate quotas for telemetry overhead
+
+---
+
+## 6. Data Governance and Security
+
+### 6.1 Sensitive Data Protection
+**PII and Security**:
+- **No PII in telemetry**: Never include personally identifiable information
+- **Data masking**: Mask sensitive data in spans and metrics
+- **Access controls**: Restrict access to observability data per team
+- **Encryption**: All telemetry data encrypted in transit and at rest
+
+### 6.2 Compliance and Retention
+**Data Management**:
+- **Retention policies**: Align with business and regulatory requirements
+- **Audit trails**: Maintain security event logging
+- **Data residency**: Ensure data stays within required regions
+- **Segmentation**: Isolate observability data per Fury segments
+
+---
+
+## 7. Monitoring and Alerting
+
+### 7.1 Golden Signals
+**Core Metrics to Monitor**:
+- **Latency**: Response time for healthy and error requests
+- **Traffic**: Request rate and connection counts
+- **Errors**: Error rates by status code and error type
+- **Saturation**: Resource utilization (CPU, memory, disk)
+
+### 7.2 Fury Alert Integration
+**Alert Management**:
+- **Default alerts**: CPU utilization, unhealthy hosts, error rates
+- **Custom alerts**: Business-specific metrics and thresholds
+- **Escalation**: OpsGenie integration for alert routing
+- **Runbooks**: Link alerts to operational procedures
+
+### 7.3 Core Metrics Impact
+**Business Critical Monitoring**:
+- **Core metrics tagging**: Tag services affecting core business metrics
+- **AutoMonitors**: Automatic alert creation for core metric impacts
+- **Status page**: Integration with Fury status page for incidents
+- **War room**: Escalation to war room for critical outages
+
+---
+
+## 8. Testing and Validation
+
+### 8.1 Observability Testing
+**Test Coverage**:
+- **Unit tests**: Mock telemetry clients and verify instrumentation
+- **Integration tests**: End-to-end observability data flow validation
+- **Load tests**: Verify observability scales with application load
+- **Chaos tests**: Test observability under failure conditions
+
+### 8.2 Data Quality Validation
+**Monitoring Quality**:
+- **Metric consistency**: Verify metrics across different time windows
+- **Trace completeness**: Ensure spans are properly linked
+- **Log correlation**: Validate correlation IDs across services
+- **Alert accuracy**: Test alert thresholds and escalation paths
+
+---
+
+## 9. Anti-Patterns to Avoid
+
+### 9.1 Fury-Specific Anti-Patterns
+**Platform Misuse**:
+- **Manual StatsD**: Don't use raw StatsD clients, use Melitk toolkits
+- **Custom OTel setup**: Use Fury-provided instrumentation instead
+- **Non-Melitk clients**: Prefer instrumented Melitk clients over generic ones
+- **Hardcoded endpoints**: Use Fury environment variables for configuration
+
+### 9.2 Data Quality Anti-Patterns
+**Common Mistakes**:
+- **High-cardinality tags**: Avoid user IDs, UUIDs, or unbounded values as tags
+- **Blocking operations**: Don't use synchronous telemetry in request paths
+- **Missing context**: Always include correlation IDs and business context
+- **Metric explosion**: Avoid dynamic metric names that grow unbounded
+
+### 9.3 Performance Anti-Patterns
+**Observability Overhead**:
+- **Over-instrumentation**: Don't create spans for every function call
+- **Sync telemetry**: Use async patterns for metrics and trace collection
+- **Resource exhaustion**: Set appropriate limits for telemetry processing
+- **Ignoring sampling**: Don't assume all telemetry data will be collected
+
+---
+
+## 10. Migration and Adoption
+
+### 10.1 Legacy Application Migration
+**Gradual Transition**:
+- **Assess current state**: Inventory existing observability implementation
+- **Incremental adoption**: Migrate metrics first, then traces, then logs
+- **Parallel running**: Run old and new systems during transition
+- **Validation**: Verify data consistency during migration
+
+### 10.2 New Application Standards
+**Greenfield Applications**:
+- **Fury scaffolding**: Use Fury application templates with observability
+- **Melitk integration**: Leverage auto-instrumented Melitk clients
+- **OTel by default**: Enable OpenTelemetry from application start
+- **Best practices**: Follow Fury observability patterns from day one
+
+---
+
+## Cross-References
+- Language-specific observability guidelines (*-observability.mdc)
+- Security baseline for sensitive data handling (*-security.mdc)
+- Performance guidelines for observability overhead considerations (*-coding.mdc)
+- Fury platform documentation for configuration and deployment patterns

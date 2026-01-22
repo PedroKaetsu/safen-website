@@ -1,0 +1,77 @@
+---
+alwaysApply: true
+---
+Software Architecture: Best Practices and Recommendations
+
+## Core Design Principles
+
+1. Follow SOLID principles
+    - Single Responsibility: Each component should do one thing well
+    - Open/Closed: Open for extension, closed for modification
+    - Liskov Substitution: Subtypes must be substitutable for their base types
+    - Interface Segregation: Many specific interfaces are better than one general interface
+    - Dependency Inversion: Depend on abstractions, not concrete implementations
+2. Embrace separation of concerns
+    - Clearly separate business logic, presentation, and data access
+    - Organize code into bounded contexts with clear responsibilities
+    - Define clear module/service boundaries with explicit interfaces
+3. Design for change
+    - Identify the dimensions of change in your system and architect accordingly
+    - Isolate volatile components from stable ones
+    - Favor composition over inheritance for flexibility
+
+## Architectural Patterns
+
+1. Choose appropriate architectural styles
+    - Match the architecture to the problem domain (microservices, monolith, etc.)
+    - Consider using layered architecture for clear separation
+    - Consider CQRS (Command Query Responsibility Segregation) for complex domains
+2. Design with performance in mind
+    - Identify performance bottlenecks early
+    - Consider caching strategies at appropriate levels
+    - Design for horizontal scalability where needed
+3. Plan for observability
+    - Build logging, metrics, and tracing into the architecture
+    - Design for easy debugging and troubleshooting
+    - Include health checks and monitoring hooks
+
+## Implementation Practices
+
+1. Manage dependencies wisely
+    - Use dependency injection to decouple components
+    - Apply the principle of least knowledge (Law of Demeter)
+    - Create a clean dependency graph without cycles
+2. Write clean, maintainable code
+    - Follow consistent coding standards
+    - Keep methods and classes small and focused
+    - Use descriptive naming that reveals intent
+    - Document architecture decisions and rationale (ADRs)
+3. Test strategically
+    - Design for testability from the start
+    - Create a comprehensive test strategy (unit, integration, performance tests)
+    - Implement automated tests at appropriate levels
+
+## Security and Resilience
+
+1. Design for security
+    - Apply the principle of least privilege
+    - Incorporate security reviews into the design process
+    - Consider data protection and privacy requirements early
+2. Build resilient systems
+    - Design for graceful degradation
+    - Implement appropriate error handling strategies
+    - Use circuit breakers, retries, and timeouts for external dependencies
+    - Consider eventual consistency where appropriate
+
+## Continuous Improvement
+
+1. Refactor regularly
+    - Address technical debt systematically
+    - Schedule regular architecture reviews
+    - Be willing to evolve the architecture as requirements change
+2. Stay pragmatic
+    - Choose simplicity over complexity when possible
+    - Avoid over-engineering and premature optimization
+    - Balance theoretical ideals with practical constraints
+
+Remember: The best architecture is one that serves the business needs while allowing for sustainable evolution of the system over time.

@@ -1,0 +1,201 @@
+---
+alwaysApply: true
+---
+
+# Fury Logging Guidelines
+
+This document establishes the foundational logging practices for all applications running on Fury PaaS. These guidelines cover the Fury Logs Service, structured logging, correlation, and best practices.
+
+---
+
+## 1. Fury Logs Service Architecture
+
+### 1.1 Primary Logging Solution
+**Architecture**: Application → ElasticSearch → Kibana Dashboard
+- **Output**: Standard output (stdout/stderr) only - applications cannot log to disk
+- **Storage**: ElasticSearch index created per application
+- **Access**: Kibana dashboard, Fury frontend, CLI commands
+- **Retention**: 2 days default, Rehydration option for up to 7 days
+
+### 1.2 Daily Quotas and Tiers
+**Tiers**: Hades, Default, MidVolume, HighVolume
+- **Quota Management**: Each application has daily log volume limits
+- **Sampling**: When limits exceeded, only 5% of logs are stored
+- **Monitoring**: Quota status visible in Fury frontend under Ops > Logs
+- **Emergency**: Panic Button available for urgent quota extensions
+
+---
+
+## 2. Structured Logging Format
+
+### 2.1 JSON Structure Requirements
+```json
+{
+  "timestamp": "2024-01-15T10:30:00.123Z",
+  "level": "INFO",
+  "message": "User login successful",
+  "service": "auth-service",
+  "correlation_id": "req-123-456-789",
+  "user_id": "user123",
+  "context": {
+    "action": "login",
+    "ip": "192.168.1.100",
+    "user_agent": "Mozilla/5.0..."
+  }
+}
+```
+
+### 2.2 Required Fields
+- **timestamp**: ISO 8601 format in UTC
+- **level**: ERROR, WARN, INFO, DEBUG
+- **message**: Human-readable description
+- **service**: Application/service name
+- **correlation_id**: For request tracing
+
+### 2.3 Optional Context Fields
+- **user_id**: For user-specific actions
+- **session_id**: For session tracking
+- **operation**: Business operation identifier
+- **duration**: For performance tracking
+- **error_code**: For error categorization
+
+---
+
+## 3. Correlation and Traceability
+
+### 3.1 Correlation IDs
+- **X-Request-ID**: Propagate through all service calls
+- **X-Trace-ID**: For distributed tracing integration
+- **X-Span-ID**: For OpenTelemetry span correlation
+- **Format**: Use UUID or similar unique identifier
+
+### 3.2 Context Propagation
+- **Incoming Requests**: Extract and use existing correlation IDs
+- **Outgoing Requests**: Propagate correlation IDs to downstream services
+- **Error Tracking**: Include correlation IDs in error logs
+- **Performance**: Log correlation IDs for slow operations
+
+---
+
+## 4. Log Levels and Usage
+
+### 4.1 Level Guidelines
+- **ERROR**: System errors, exceptions, failures requiring attention
+- **WARN**: Potential issues, deprecated features, retries
+- **INFO**: Business events, user actions, system state changes
+- **DEBUG**: Detailed debugging information, development use only
+
+### 4.2 Production Logging
+- **Default Level**: INFO in production environments
+- **Error Context**: Include stack traces and relevant context
+- **Performance**: Log high-impact operations with timing
+- **Security**: Log authentication/authorization events
+
+---
+
+## 5. Security and Privacy
+
+### 5.1 Sensitive Information Protection
+**Never log**:
+- Passwords, tokens, API keys
+- Credit card numbers, personal identification
+- Session cookies, authentication tokens
+- User personal data (emails, phones, addresses)
+
+### 5.2 Data Obfuscation
+- **Partial Masking**: Show only partial data (e.g., user***@***.com)
+- **Hashing**: Use consistent hashing for user identifiers
+- **Redaction**: Replace sensitive fields with "[REDACTED]"
+
+---
+
+## 6. Performance Considerations
+
+### 6.1 Logging Overhead
+- **Async Logging**: Use non-blocking logging mechanisms
+- **Batching**: Group log entries to reduce I/O
+- **Structured Data**: Use efficient JSON serialization
+- **Level Filtering**: Avoid unnecessary log processing
+
+### 6.2 Resource Management
+- **Buffer Management**: Configure appropriate buffer sizes
+- **Memory Usage**: Monitor logging library memory consumption
+- **Network Impact**: Consider log volume impact on network
+- **Disk I/O**: Use stdout/stderr only, no direct file writes
+
+---
+
+## 7. Integration with Observability
+
+### 7.1 Metrics Correlation
+- **Error Rates**: Log errors with metrics correlation
+- **Performance**: Include timing information in logs
+- **Business Metrics**: Log business events for analytics
+- **Health Checks**: Log service health information
+
+### 7.2 Distributed Tracing
+- **OpenTelemetry**: Include trace and span IDs in logs
+- **Service Mesh**: Leverage sidecar tracing integration
+- **Cross-Service**: Maintain traceability across service boundaries
+
+---
+
+## 8. Best Practices
+
+### 8.1 Message Quality
+- **Descriptive Messages**: Clear, actionable log messages
+- **Consistent Format**: Use consistent message templates
+- **Context Inclusion**: Include relevant business context
+- **Avoid Noise**: Don't log routine successful operations
+
+### 8.2 Error Handling
+- **Stack Traces**: Include full stack traces for errors
+- **Error Codes**: Use consistent error categorization
+- **Recovery Actions**: Log automated recovery attempts
+- **Escalation**: Log when manual intervention is required
+
+### 8.3 Development vs Production
+- **Development**: More verbose logging for debugging
+- **Production**: Focus on business events and errors
+- **Configuration**: Use environment-specific log levels
+- **Testing**: Validate log output in staging environments
+
+---
+
+## 9. Access and Monitoring
+
+### 9.1 Log Access Methods
+- **Kibana**: Primary dashboard for log analysis
+- **Fury Frontend**: Ops > Logs section
+- **CLI**: `fury logs <SCOPE>` for terminal access
+- **Terminal**: Real-time logs via instance terminal
+
+### 9.2 Log Analysis
+- **Filtering**: Use structured fields for efficient filtering
+- **Aggregation**: Leverage ElasticSearch aggregation capabilities
+- **Alerting**: Set up alerts for error patterns
+- **Dashboards**: Create custom Kibana dashboards
+
+---
+
+## 10. Compliance and Retention
+
+### 10.1 Data Retention
+- **Default**: 2 days automatic retention
+- **Rehydration**: Up to 7 days for critical investigations
+- **Compliance**: Follow regulatory requirements for log retention
+- **Archival**: Use appropriate long-term storage for compliance
+
+### 10.2 Audit Logging
+- **Security Events**: Log authentication and authorization
+- **Data Access**: Log access to sensitive data
+- **Configuration Changes**: Log system configuration modifications
+- **Compliance**: Meet regulatory audit requirements
+
+---
+
+## Cross-References
+- Language-specific logging implementations (*-logging.mdc)
+- Observability integration patterns (*-observability.mdc)
+- Security guidelines for sensitive data handling (*-security.mdc)
+- Performance optimization for logging overhead (*-coding.mdc)

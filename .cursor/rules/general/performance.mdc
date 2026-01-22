@@ -1,0 +1,214 @@
+---
+alwaysApply: true
+---
+
+# Performance Guidelines
+
+These rules establish the foundational performance practices for all applications running on Fury PaaS. These guidelines cover benchmarking, profiling, optimization strategies, and performance monitoring across all programming languages, with specific focus on Fury's performance ecosystem.
+
+---
+
+## 1. Performance Fundamentals
+
+### 1.1 Performance Metrics (Golden Signals)
+**Core Performance Indicators**:
+- **Latency**: Response time for requests (P50, P95, P99 percentiles)
+  - Own service response times
+  - Dependencies response times  
+  - Healthy vs. unhealthy response times
+- **Throughput**: Requests per second (RPS) and operations per second
+- **Traffic**: Request volume, connections, and traffic deviations
+- **Saturation**: Resource utilization (CPU, memory, disk I/O, network I/O)
+  - Set thresholds at 80-90%, not 100% (avoid broken state)
+
+### 1.2 Performance Objectives
+**Service Level Objectives (SLOs)**:
+- **Response time**: P95 latency < 200ms for web endpoints
+- **Availability**: 99.9% uptime for production services
+- **Throughput**: Handle peak load with < 80% resource utilization
+- **Recovery time**: Return to normal performance within 5 minutes of incident resolution
+
+### 1.3 Performance Budget
+**Resource Constraints**:
+- **Memory**: Application should not exceed 80% of allocated memory
+- **CPU**: Sustained CPU usage should remain below 70% of allocated cores
+- **Disk**: I/O operations should not saturate storage bandwidth
+- **Network**: Network latency should account for < 10% of total response time
+
+---
+
+## 2. Fury Performance Testing with PTP
+
+### 2.1 Performance Test Platform (PTP)
+**Fury's Load Testing Solution**:
+- **Load Testing**: Standard performance testing under normal and peak conditions
+- **Schema-based Configuration**: YAML/JSON test definitions
+- **Scheduled Execution**: Automated test scheduling and reporting
+- **Security Integration**: Built-in Fury environment security and configuration
+
+### 2.2 Load Testing Best Practices
+**Test Types and Implementation**:
+```yaml
+# Example PTP Load Test Schema
+base:
+  scope: load-testing
+config:
+  phases:
+    - target: 100  # Ramp-up to 100 users over 5 minutes
+      duration: 300
+    - target: 100  # Sustain 100 users for 10 minutes
+      duration: 600
+    - target: 0    # Ramp-down to 0 users
+      duration: 300
+groups:
+  - name: ApiEndpoint
+    flow:
+      - get:
+          uri: /api/endpoint
+```
+
+### 2.3 Benchmark Criteria
+**Measurement Standards**:
+- **Repeatability**: Benchmarks must produce consistent results across runs
+- **Isolation**: Tests should run in controlled environments without interference
+- **Realistic data**: Use production-like datasets and traffic patterns
+- **Statistical significance**: Run multiple iterations and report confidence intervals
+- **Environment consistency**: Same hardware, OS, and configuration across test runs
+
+---
+
+## 3. Fury Observability Stack
+
+### 3.1 Monitoring Tools Integration
+**Fury's Three-Pillar Observability**:
+- **New Relic**: Application Performance Monitoring (APM)
+  - Server-side performance metrics
+  - Stack traces and error analysis
+  - Apdex scoring for user satisfaction
+- **Datadog**: Infrastructure and business metrics
+  - Resource utilization monitoring
+  - Custom business metrics collection
+  - Golden signals dashboards
+- **Kibana**: Log analysis and troubleshooting
+  - Centralized log aggregation
+  - Real-time log searching and filtering
+
+### 3.2 OpenTelemetry Integration
+**Modern Observability Framework**:
+- **Distributed Tracing**: Request correlation across services
+- **Vendor-neutral Telemetry**: Standardized instrumentation
+- **Multi-language Support**: Java, Go, Python, Node.js
+- **Performance Insights**: End-to-end request analysis
+
+### 3.3 Key Performance Dashboards
+**Fury Application Dynamic Dashboard**:
+- CPU and memory utilization per instance
+- Request throughput and response times
+- Healthy vs. unhealthy replica counts
+- Network usage and traffic patterns
+- Container performance metrics
+
+---
+
+## 4. Fury Scope Performance Management
+
+### 4.1 Scope Metrics and Scaling
+**Application Replica Performance**:
+- **Predictive Scaling**: ML-based proactive resource adjustments
+- **Dynamic Scaling**: CPU-based automatic scaling decisions
+- **Scale to Zero**: Serverless scope efficiency optimization
+- **Resource Right-sizing**: Automated optimization recommendations
+
+### 4.2 Performance Monitoring Guidelines
+**Real-Time Observability**:
+- **Traffic Sources**: ELB/Envoy, traffic-layer, http-middleware
+- **Response Time Measurement**: Multi-layer latency tracking
+- **Resource Utilization**: CPU, memory, network monitoring per replica
+- **Health Check Integration**: /ping endpoint performance correlation
+
+---
+
+## 5. Fury Performance Services
+
+### 5.1 Modeling Service
+**Performance Analysis Framework**:
+- **Performance Modeling**: Data collection, analysis, and optimization
+- **Latency Optimization**: Response time improvement strategies  
+- **Efficiency Analysis**: Resource utilization optimization
+- **SLA Tracking**: Performance prediction and recommendations
+
+### 5.2 TSMetrics Integration
+**Time-Series Performance Data**:
+- **OpenTSDB**: High-performance time-series processing
+- **BigTable Storage**: Scalable metrics storage
+- **Grafana Visualization**: Performance trend analysis
+- **Idempotency**: Reliable metrics collection and processing
+
+### 5.3 Entity Tracing
+**Performance Change Correlation**:
+- **Change History**: Track performance-impacting modifications
+- **Root Cause Analysis**: Correlate deployments with performance changes
+- **Audit Trail**: Performance optimization decision tracking
+
+---
+
+## 6. Profiling and Analysis
+
+### 6.1 Flame Graphs
+**Visualization Standards**:
+- **CPU flame graphs**: Identify CPU-bound bottlenecks and hot code paths
+- **Memory flame graphs**: Analyze memory allocation patterns and leaks
+- **I/O flame graphs**: Understand disk and network operation costs
+- **Lock contention**: Visualize synchronization bottlenecks in concurrent code
+
+### 6.2 Profiling Best Practices
+**Data Collection Guidelines**:
+- **Production profiling**: Use low-overhead profilers in production environments
+- **Sampling rates**: Balance between data quality and performance impact
+- **Profile duration**: Collect sufficient data for statistical significance
+- **Multiple scenarios**: Profile different workloads and traffic patterns
+
+---
+
+## 7. Performance Anti-Patterns
+
+### 7.1 Common Mistakes
+**Avoid These Practices**:
+- **Premature optimization**: Optimizing before identifying actual bottlenecks
+- **Micro-benchmarks**: Focusing on isolated performance without system context
+- **Production experimentation**: Making performance changes without testing
+- **Single-metric optimization**: Improving one metric at the expense of others
+
+### 7.2 Fury-Specific Anti-Patterns
+**Platform-Specific Issues**:
+- **Ignoring sidecar overhead**: Not accounting for traffic-sidecar processing time
+- **Manual scaling dependency**: Over-relying on manual boosting instead of optimization
+- **Log quota violations**: Excessive logging causing sampling and performance degradation
+- **Improper health checks**: /ping endpoint issues affecting load balancer decisions
+
+---
+
+## 8. Performance Culture
+
+### 8.1 Development Practices
+**Team Guidelines**:
+- **Performance awareness**: Consider performance implications in design decisions
+- **Regular profiling**: Include performance analysis in development workflow
+- **Regression prevention**: Automated performance testing in CI/CD pipelines
+- **Knowledge sharing**: Document and share performance findings across teams
+
+### 8.2 Fury Integration Practices
+**Platform-Specific Workflows**:
+- **PTP Integration**: Regular load testing in deployment pipelines
+- **Observability Setup**: Proper instrumentation with New Relic, Datadog, and OpenTelemetry
+- **Scope Optimization**: Leverage predictive scaling and right-sizing opportunities
+- **Alert Configuration**: Set up meaningful performance alerts with proper thresholds
+
+---
+
+## Cross-References
+- Language-specific performance guidelines (*-performance.mdc)
+- Fury observability guidelines (*-observability.mdc)
+- Fury scope management (*scopes-docs*)
+- PTP documentation (*performance-test-ptp*)
+- Fury modeling service (*modeling-fury-docs*)

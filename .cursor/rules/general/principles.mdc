@@ -1,0 +1,103 @@
+---
+alwaysApply: true
+---
+# Development Principles
+
+> For software architecture principles (SOLID, Separation of Concerns, architectural patterns), see [architecture/rule.mdc](mdc:../architecture/rule.mdc)
+
+## Core Development Principles
+
+### KISS (Keep It Simple, Stupid)
+- Keep code simple and straightforward
+- Avoid complex solutions when simpler alternatives exist
+- Prioritize clarity over premature optimization
+- Choose the simplest solution that works
+- Avoid over-engineering
+
+<!-- Add language-specific examples of KISS principle in your language folder (e.g., go/examples.mdc, typescript/examples.mdc) -->
+
+### YAGNI (You Aren't Gonna Need It)
+- Don't implement features until they are necessary
+- Avoid over-engineering
+- Keep code focused on current requirements
+- Add complexity only when it's actually needed
+
+<!-- Add language-specific examples of YAGNI principle in your language folder -->
+
+### DRY (Don't Repeat Yourself)
+- Avoid code duplication
+- Extract common functionality into reusable functions/modules
+- Single source of truth for business logic
+- Use constants for repeated values
+
+<!-- Add language-specific examples of DRY principle in your language folder -->
+
+## Code Quality Principles
+
+### Principle of Least Surprise
+- Code should behave in a way that users expect
+- Use conventional naming and patterns
+- Avoid unexpected side effects
+- Make the code predictable
+
+### Fail Fast
+- Detect and report errors as early as possible
+- Validate inputs at the beginning of functions
+- Use early returns for error conditions
+
+<!-- Add language-specific examples of Fail Fast pattern in your language folder -->
+
+### Clean Code Fundamentals
+- Write code that is easy to read, understand, and maintain
+- Use descriptive and meaningful names for variables, functions, and types
+- Keep functions small and with a single responsibility
+- Write comments only when necessary and explain the "why", not the "what"
+
+## Design Patterns
+
+### Return Early Pattern
+- Use early returns to reduce nesting and improve code readability
+- Handle error cases and edge conditions first, then focus on the main logic
+- Avoid deep nesting by returning early when conditions are not met
+- Make the main path of execution clear and linear
+
+<!-- Add language-specific examples of Return Early pattern in your language folder -->
+
+### Composition over Inheritance
+- Favor object composition over class inheritance
+- Use interfaces and dependency injection
+- Build complex functionality by combining simpler components
+- Prefer "has-a" relationships over "is-a" relationships when appropriate
+
+<!-- Add language-specific examples of Composition over Inheritance in your language folder -->
+
+## Naming Conventions (Language-Agnostic)
+
+### General Guidelines
+- Use intention-revealing names
+- Avoid disinformation and misleading names
+- Make meaningful distinctions
+- Use pronounceable names
+- Use searchable names
+- Avoid encodings and cryptic abbreviations
+- Add meaningful context
+- Don't add gratuitous context
+
+### Function/Method Names
+- Use verbs or verb phrases for function names
+- For boolean functions, use prefixes like `is`, `has`, `can`, `should`, etc.
+- Be clear and descriptive about the function's purpose
+- Avoid unnecessary prefixes or implementation details in the name
+- Keep names concise but informative
+
+### Constants and Variables
+- Use descriptive names that explain the purpose
+- Avoid single-letter variables except for short loops
+- Use domain-specific terminology when appropriate
+- Constants should be clearly distinguishable (often uppercase or clear naming)
+
+<!-- Add language-specific naming convention examples in your language folder -->
+
+---
+
+**Note**: This file contains language-agnostic principles. For language-specific examples and implementations of these principles, check the respective language folders (e.g., `go/`, `typescript/`, `python/`, etc.).
