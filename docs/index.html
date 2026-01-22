@@ -26,20 +26,21 @@
     .container{ max-width:1100px; margin:0 auto; padding:0 24px; }
 
     header{
-      padding:24px 0 56px;
+      padding:32px 0 48px;
       border-bottom:1px solid rgba(255,255,255,0.06);
       background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
     }
     .nav{
-      display:flex; align-items:center; justify-content:space-between; gap:16px;
-      padding:12px 0;
+      display:flex; align-items:center; justify-content:space-between; gap:32px;
+      padding:16px 0;
     }
     .logo{
       font-size:22px; font-weight:800; letter-spacing:0.6px;
       display:flex; align-items:center; gap:10px;
+      flex-shrink:0;
     }
     .logo img{
-      height:48px;
+      height:240px;
       width:auto;
       display:block;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
@@ -49,14 +50,21 @@
       background: var(--branco);
       box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
     }
-    .navlinks{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .navlinks{ 
+      display:flex; 
+      gap:12px; 
+      flex-wrap:wrap; 
+      justify-content:flex-end;
+      align-items:center;
+    }
 
     .btn{
       display:inline-block;
-      padding:10px 16px;
-      border-radius:10px;
+      padding:14px 20px;
+      border-radius:12px;
       border:1px solid transparent;
       font-weight:700;
+      font-size:15px;
       text-decoration:none;
       transition:0.15s ease;
       user-select:none;
@@ -76,7 +84,7 @@
       grid-template-columns: 1.15fr 0.85fr;
       gap:28px;
       align-items:center;
-      margin-top:34px;
+      margin-top:32px;
     }
     h1{
       font-size:44px;
@@ -191,8 +199,9 @@
       .hero-actions{ justify-content:center; }
       h1{ font-size:36px; }
       .sub{ margin-left:auto; margin-right:auto; }
-      .nav{ flex-direction:column; }
+      .nav{ flex-direction:column; gap:20px; }
       .navlinks{ justify-content:center; }
+      .logo img{ height:180px; }
     }
   </style>
 </head>
